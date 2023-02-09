@@ -1,7 +1,7 @@
 from pyparsing import Word, alphas, Literal, Group, Optional, ZeroOrMore, oneOf,Empty, OneOrMore,alphanums,Forward,nums
-from lexer import lexer
 
-archivo= open("ejemplo.txt").read().lower()
+
+
 
 
 #Reservadas
