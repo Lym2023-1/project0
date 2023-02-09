@@ -1,0 +1,18 @@
+ROBOT_R VARS var1 , var2  ; 
+
+PROCS 
+
+proceso1 [ |a,b| assignTo : 1 , var1; put : a , ballon ; put : b , chips ]
+
+ goNorth [| | while : canMovetoThe : 1 , north do: [ moveInDir : 1 , north ] ]
+
+ goWest [ | | if : canMoveInDir : 1 , west then: [ MoveInDir : 1 , west ] else : nop : ]
+
+checkjumpindir_and_go_north [|| if: canJumpIndir: 4, north then :[ GONORTH]]
+
+anterior_pero_repetitivo: [|| if: canJumpIndir: 4, north then :[ repeat: 2000 [GONORTH]]]
+
+proceso_recursivo_ir_lo_mas_al_norte_posible_en_intervalos_de_a: [|a| if:  canMoveInDir : a, north then: [MoveInDir : a , north; proceso_recursivo_ir_lo_mas_al_norte_posible: a]]
+
+ [ goWest : 3 , 3
+ putcb : 2 ,1 ]
