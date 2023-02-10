@@ -11,7 +11,7 @@ comandos= {"assignto", "goto", "move" , "turn", "face", "put", "pick" ,"moveindi
 variables ={"north"}
 funciones = {"put"}
 
-
+Lista_Variables= ["north", "south", "east", "west", "front", "right", "left", "back", "chips", "balloons" ]
 
 
 # Variables
