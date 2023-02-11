@@ -79,9 +79,9 @@ var_declaration.setParseAction(guardar_variables)
 
 #Guardar procedimiento
 def guardar_procedimiento(token):
-    print(token)
+    
     aux_token=token[3:]
-    print(aux_token)
+    
     for value in aux_token:
         if value!= "|" and value!=",":
             declared_param.add(value)
@@ -113,14 +113,13 @@ def comprobar_parametros(token):
     if len(auxiliar_params) != comandos[token[0]]:
         raise ValueError("b")
     for cada_elemento in auxiliar_params:
-        print(cada_elemento)
+        
         if (cada_elemento not in variables) and (cada_elemento not in declared_param):
-            print(cada_elemento not in declared_param)
-            print(declared_param)
+
             try:
                 int(cada_elemento)
             except:
-                print(token)
+                
                 raise ValueError("a")
     
     

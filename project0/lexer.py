@@ -46,8 +46,7 @@ def generador_lexer (archivo):
             rta.append(palabra)
         if siguientepalabra!= " " and siguientepalabra!= "\n" and siguientepalabra!= "" and siguientepalabra!= "\t":
             rta.append(siguientepalabra)
-    return rta, len(rta)
+    return rta
 
 #//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-archivo = "insertarruta"
-lexer= generador_lexer(archivo)
+
