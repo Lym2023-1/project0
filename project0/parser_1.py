@@ -51,7 +51,7 @@ if_statement <<= Group(Literal("if") + Literal(":") + condicional_call + Literal
 while_statement <<= Literal("while") + Literal(":") + condicional_call + Literal("do") + Literal(":") + Literal("[") + (repeat_statement|while_statement|if_statement|instructions_call)+ ZeroOrMore(Literal(";") + (repeat_statement|while_statement|if_statement|instructions_call)) + Literal("]") 
 
 # Procedimiento
-procedure_declaration = Group(var_name  + Literal("[") + Literal("|") + local_param + Literal("|") )
+procedure_declaration = (var_name  + Literal("[") + Literal("|") + local_param + Literal("|") )
 
 complete_procedure = procedure_declaration+(repeat_statement|while_statement|if_statement|instructions_call)+ ZeroOrMore(Literal(";") + (repeat_statement|while_statement|if_statement|instructions_call)) + Literal("]")
 
@@ -79,8 +79,9 @@ var_declaration.setParseAction(guardar_variables)
 
 #Guardar procedimiento
 def guardar_procedimiento(token):
-    
+    print(token)
     aux_token=token[3:]
+    print(aux_token)
     for value in aux_token:
         if value!= "|" and value!=",":
             declared_param.add(value)
@@ -112,11 +113,14 @@ def comprobar_parametros(token):
     if len(auxiliar_params) != comandos[token[0]]:
         raise ValueError("b")
     for cada_elemento in auxiliar_params:
-
+        print(cada_elemento)
         if (cada_elemento not in variables) and (cada_elemento not in declared_param):
+            print(cada_elemento not in declared_param)
+            print(declared_param)
             try:
                 int(cada_elemento)
             except:
+                print(token)
                 raise ValueError("a")
     
     
@@ -158,57 +162,13 @@ grammar = Literal("robot_r")+ Optional(var_declaration) + Optional(procs) + inst
 # Análisis del texto
 
 
-"""
-x="procesohard [|a, b, c, d, e, f, g| if: canMoveInDir : a, north then: [MoveInDir : a , north; procesohard: a, b, c,d,e,f,g] else:  [if: canMoveInDir : b, west then:[ repeat: 13567897 [ while canMoveInDir : 1, 1 do: [nop]; procesohard: 1, 1, 1,1,1,1,1]]else: [nop]] ]".lower()
-y=11
-try:
-    result = complete_procedure.parseString(x)
-    
-    print("La cadena es válida según la gramática")
-    
-except Exception as e:
-    print("La cadena no es válida según la gramática")
-    print(e)
-
-    
-    print(x[y+2])
-    print(x[y+1])
-    print(x[y])
-    print(x[y-1])
-    print(x[y-2])
-    print(x[y-3])
-    print(x[y-4])
-"""
+x="robot_r vars nom , x , y , one ; procs putcb [ | c , b | assignto : 1 , one ; put : c , chips ; put : b , balloons ] gonorth [ | | while : canmovetothe : 1 , north do : [ moveindir : 1 , north ] ] gowest [ | | if : canmoveindir : 1 , west then : [ moveindir : 1 , west ] else : [ nop : ] ] [ goto : 3 , 3; putcb : 2 , 1 ]"
 
 
-"""
-x="if: canMoveInDir : 1, north then: [MoveInDir : 1 , south; put: 1, 1] else:  [ if: canMoveInDir : 1, west then:[ repeat: 13567897 [while canMoveInDir : 1, 2 do: [nop:]; proceso_hard: 1, 2, 3,4,5,6,7]]] else: [nop:]]".lower()
 y=56
 
 try:
-    result = if_statement.parseString(x)
-    
-    print("La cadena es válida según la gramática")
-    
-except Exception as e:
-    print("La cadena no es válida según la gramática")
-    print(e)
-
-    print(x[y+2])
-    print(x[y+1])
-    print(x[y])
-    print(x[y-1])
-    print(x[y-2])
-    print(x[y-3])
-    print(x[y-4])
-"""
-
-"""
-x="repeat: 13567897 [ while : canmoveindir : 1, 2 do: [nop:]]; proceso_hard: 1, 2, 3,4,5,6,7]".lower()
-y=57
-
-try:
-    result = repeat_statement.parseString(x)
+    result = grammar.parseString(x)
     
     print("La cadena es válida según la gramática")
     
@@ -224,5 +184,6 @@ except Exception as e:
     print(x[y-3])
     print(x[y-4])
 
-"""
+
+
 

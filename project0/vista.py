@@ -7,8 +7,10 @@ def main():
 
     ruta_archivo=input("Ingrese la ruta del archivo ( por ejemplo: project0/test/ejemplo.txt)")
     archivo= open(ruta_archivo).read().lower()
-    texto_tokenizado=" ".join(archivo)
-    print(texto_tokenizado)
+    tokens=lexer(archivo)
+    texto_tokenizado=" ".join(tokens)
+    
+    
     try:
         result = grammar.parseString(texto_tokenizado)
         print("La cadena es válida según la gramática")
