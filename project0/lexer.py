@@ -16,8 +16,8 @@ y se convierte en una cadena de texto mediante el método join.
 
 def generar_palabra (archivo, i):
     generador_palabra= []
-    simbolos_cierre={" ",",",",","[","]",":","|"}
-    while archivo[i] not in simbolos_cierre:
+    simbolos_separacion={" ", ",", ",",  "[",  "]",  ":",  "|","\n", "\t" }
+    while archivo[i] not in simbolos_separacion:
         generador_palabra.append(archivo[i])
         i+=1
     palabra="".join(generador_palabra)
@@ -37,18 +37,17 @@ son agregados a la lista rta.
 Si el símbolo siguiente a la palabra generada no es un espacio en 
 blanco, entonces se agrega a la lista rta.
 """
-
-def lexer (archivo):
-    rta= list()
+def generador_lexer (archivo):
+    rta= []
     j=0
     while j < len(archivo):
         palabra, j, siguientepalabra= (generar_palabra(archivo,j))
-        rta.append(palabra)
-        if siguientepalabra!= " ":
+        if palabra != " " and palabra!= "\n" and palabra!= "" and palabra!= "\t":
+            rta.append(palabra)
+        if siguientepalabra!= " " and siguientepalabra!= "\n" and siguientepalabra!= "" and siguientepalabra!= "\t":
             rta.append(siguientepalabra)
-    
-    for i in range(len(rta)):
-        rta[i]=rta[i].replace("\n","")
-    rta=[palabra for palabra in rta if palabra!= ""]
-    
-    return rta
+    return rta, len(rta)
+
+#//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+archivo = "insertarruta"
+lexer= generador_lexer(archivo)
