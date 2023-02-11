@@ -10,7 +10,7 @@ def main():
     tokens=generador_lexer(archivo)
     texto_tokenizado=" ".join(tokens)
     
-
+    print(texto_tokenizado)
 
     try:
         result = grammar.parseString(texto_tokenizado)

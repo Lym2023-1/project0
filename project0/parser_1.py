@@ -81,21 +81,23 @@ var_declaration.setParseAction(guardar_variables)
 def guardar_procedimiento(token):
     
     aux_token=token[3:]
-    
+    i=0
     for value in aux_token:
+        
         if value!= "|" and value!=",":
+            i+=1
             declared_param.add(value)
 
-    comandos[token[0]]=len(declared_param)
+    
+
+
+    comandos[token[0]]=i
+    
 
 procedure_declaration.setParseAction(guardar_procedimiento)
 
 
-#reiniciar scope
 
-def reiniciar_parametros(token):
-    declared_param=set()
-complete_procedure.setParseAction(reiniciar_parametros)
 
 
 
@@ -106,11 +108,16 @@ def comprobar_parametros(token):
 
 
     if token[0] not in comandos:
+        print(token)
+        print(comandos)
         raise ValueError("x")
 
     auxiliar_params=[elemento for elemento in token[2:] if elemento!=","]
     
     if len(auxiliar_params) != comandos[token[0]]:
+        print(token)
+        print(declared_param)
+
         raise ValueError("b")
     for cada_elemento in auxiliar_params:
         
@@ -119,7 +126,8 @@ def comprobar_parametros(token):
             try:
                 int(cada_elemento)
             except:
-                
+                print(token)
+                print(declared_param)
                 raise ValueError("a")
     
     
@@ -128,8 +136,9 @@ def comprobar_parametros(token):
 #Comprobar longitud parametros en condicionales
 
 def comprobar_parametros_condicionales(token):
-    
+    print(token)
     if token[0]!="not":
+        
         auxiliar_params=[elemento for elemento in token[2:] if elemento!=","]
         
         if len(auxiliar_params) != condicionales[token[0]]:
@@ -137,6 +146,7 @@ def comprobar_parametros_condicionales(token):
     else:
         auxiliar_params=[elemento for elemento in token[2:] if elemento!="," and elemento!=":" ]
         if len(auxiliar_params)-1 != condicionales[auxiliar_params[0]]:
+            
             raise ValueError("d")
     
     
@@ -161,7 +171,7 @@ grammar = Literal("robot_r")+ Optional(var_declaration) + Optional(procs) + inst
 # Análisis del texto
 
 
-x="robot_r vars nom , x , y , one ; procs putcb [ | c , b | assignto : 1 , one ; put : c , chips ; put : b , balloons ] gonorth [ | | while : canmovetothe : 1 , north do : [ moveindir : 1 , north ] ] gowest [ | | if : canmoveindir : 1 , west then : [ moveindir : 1 , west ] else : [ nop : ] ] [ goto : 3 , 3; putcb : 2 , 1 ]"
+x="robot_r vars var1 , var2 ; procs proceso1 [ | a , b | assignto : 1 , var1; put : a , balloons ; put : b , chips ] gonorth [ | | while : canmovetothe : 1 , north do : [ moveindir : 1 , north ] ] gowest [ | | if : canmoveindir : 1 , west then : [ moveindir : 1 , west ] else : [ nop : ] ] checkjumpindirandgonorth [ | | if : canjumpindir : 3 , north then : [ gonorth : ] else : [nop :] ] anteriorperorepetitivo : [ | | if : canmovetothe : 4 , north then : [ repeat : 2000 [ gonorth : ] ]  else : [nop :]] procesorecursivoirlomasalnorteposibleenintervalosdea : [ | a | if : canmoveindir : a , north then : [ moveindir : a , north; procesorecursivoirlomasalnorteposible : a ] ] [ gowest : 3 , 3 : putcb : 2 , 1 ]"
 
 
 y=56
@@ -174,14 +184,6 @@ try:
 except Exception as e:
     print("La cadena no es válida según la gramática")
     print(e)
-
-    print(x[y+2])
-    print(x[y+1])
-    print(x[y])
-    print(x[y-1])
-    print(x[y-2])
-    print(x[y-3])
-    print(x[y-4])
 
 
 
