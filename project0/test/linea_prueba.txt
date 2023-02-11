@@ -1,1 +1,0 @@
-while:canMovetoThe:1,north do: [while: canPick: n , X do: [ if canMovetoThe:2 then: [if canMovetoThe:4,north  then:  [moveInDir : 2 , north ] else: nop:] else: moveInDir : 3 , north]]
