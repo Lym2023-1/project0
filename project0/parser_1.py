@@ -53,7 +53,7 @@ while_statement <<= Literal("while") + Literal(":") + condicional_call + Literal
 # Procedimiento
 procedure_declaration = (var_name  + Literal("[") + Literal("|") + local_param + Literal("|") )
 
-complete_procedure = procedure_declaration+(repeat_statement|while_statement|if_statement|instructions_call)+ ZeroOrMore(Literal(";") + (repeat_statement|while_statement|if_statement|instructions_call)) + Literal("]")
+complete_procedure = procedure_declaration+Optional(repeat_statement|while_statement|if_statement|instructions_call)+ ZeroOrMore(Literal(";") + (repeat_statement|while_statement|if_statement|instructions_call)) + Literal("]")
 
 
 # Declaración de procedimientos
@@ -64,7 +64,7 @@ var_declaration =  Literal("vars") + vars_ + Literal(";")
 
 # Declaracion de Intrucciones
 
-instrucciones= Literal("[") + instructions_call + Literal("]")
+instrucciones= Literal("[") + (repeat_statement|while_statement|if_statement|instructions_call)+ ZeroOrMore(Literal(";") + (repeat_statement|while_statement|if_statement|instructions_call)) + Literal("]") 
 
 
 
@@ -108,15 +108,13 @@ def comprobar_parametros(token):
 
 
     if token[0] not in comandos:
-        print(token)
-        print(comandos)
+        
         raise ValueError("x")
 
     auxiliar_params=[elemento for elemento in token[2:] if elemento!=","]
     
     if len(auxiliar_params) != comandos[token[0]]:
-        print(token)
-        print(declared_param)
+
 
         raise ValueError("b")
     for cada_elemento in auxiliar_params:
@@ -126,8 +124,7 @@ def comprobar_parametros(token):
             try:
                 int(cada_elemento)
             except:
-                print(token)
-                print(declared_param)
+
                 raise ValueError("a")
     
     
@@ -136,7 +133,7 @@ def comprobar_parametros(token):
 #Comprobar longitud parametros en condicionales
 
 def comprobar_parametros_condicionales(token):
-    print(token)
+    
     if token[0]!="not":
         
         auxiliar_params=[elemento for elemento in token[2:] if elemento!=","]
@@ -167,24 +164,6 @@ instruction_call.setParseAction(comprobar_parametros)
 condicional_call.setParseAction(comprobar_parametros_condicionales)
 # Gramática completa
 grammar = Literal("robot_r")+ Optional(var_declaration) + Optional(procs) + instrucciones
-
-# Análisis del texto
-
-
-x="robot_r vars var1 , var2 ; procs proceso1 [ | a , b | assignto : 1 , var1; put : a , balloons ; put : b , chips ] gonorth [ | | while : canmovetothe : 1 , north do : [ moveindir : 1 , north ] ] gowest [ | | if : canmoveindir : 1 , west then : [ moveindir : 1 , west ] else : [ nop : ] ] checkjumpindirandgonorth [ | | if : canjumpindir : 3 , north then : [ gonorth : ] else : [nop :] ] anteriorperorepetitivo : [ | | if : canmovetothe : 4 , north then : [ repeat : 2000 [ gonorth : ] ]  else : [nop :]] procesorecursivoirlomasalnorteposibleenintervalosdea : [ | a | if : canmoveindir : a , north then : [ moveindir : a , north; procesorecursivoirlomasalnorteposible : a ] ] [ gowest : 3 , 3 : putcb : 2 , 1 ]"
-
-
-y=56
-
-try:
-    result = grammar.parseString(x)
-    
-    print("La cadena es válida según la gramática")
-    
-except Exception as e:
-    print("La cadena no es válida según la gramática")
-    print(e)
-
 
 
 

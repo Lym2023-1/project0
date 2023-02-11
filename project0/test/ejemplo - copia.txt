@@ -7,7 +7,7 @@ ROBOT_R
  while : canJumpInDir: 1 , north do: [ moveInDir : 1 , right]
  ]
  goWest [ | | if : canMoveInDir : 1 , west then: [ MoveInDir : 1 ,
-west ] else : nop : ]
+west ] else : [nop :] ]
 
 goSouth [||
 
@@ -19,6 +19,6 @@ goSouth [||
  putcb : 2 ,1;
 put: 5,		4;
 turn: right;
-wh i le : canJumpInDir: 298 , north do: [ moveInDir : 1 ,left]
+while : canJumpInDir: 298 , north do: [ moveInDir : 1 ,left]
 
  ]
