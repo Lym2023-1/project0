@@ -4,21 +4,21 @@ ROBOT_R
  putCB [ |c , b | assignTo : 1 , one ;
  put : c , chips ; put : b , balloons ]
  goNorth [| |
- wh i le : canJumpInDir: 1 , north do: [ moveInDir : 1 , right] od
+ while : canJumpInDir: 1 , north do: [ moveInDir : 1 , right]
  ]
- goWest [ | | i f : canMoveInDir : 1 , west then: [ MoveInDir : 1 ,
-west ] e l s e : nop : ]
+ goWest [ | | if : canMoveInDir : 1 , west then: [ MoveInDir : 1 ,
+west ] else : nop : ]
 
-goSouth [||]
-
- [
+goSouth [||
 
 
+]
 
- goTo                    : 3 , 3
- putcb : 2 ,1
-put: 5,		4
-turn: right
+[
+ goTo                    : 3 , 3 ;     
+ putcb : 2 ,1;
+put: 5,		4;
+turn: right;
 wh i le : canJumpInDir: 298 , north do: [ moveInDir : 1 ,left]
 
  ]
