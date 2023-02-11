@@ -1,4 +1,4 @@
-from pyparsing import Word, alphas, Literal, Group, Optional, ZeroOrMore, oneOf,Empty, OneOrMore,alphanums,Forward,nums
+from pyparsing import Word, Literal, Group, Optional, ZeroOrMore, oneOf,Empty, OneOrMore,Forward,nums,CharsNotIn,alphas,alphanums
 
 
 
@@ -8,7 +8,7 @@ from pyparsing import Word, alphas, Literal, Group, Optional, ZeroOrMore, oneOf,
 
 condicionales={"facing":1 , "canput": 2 , "canpick": 2 ,"canmoveindir": 2 , "canjumpindir": 2 ,"canmovetothe": 2 , "canjumptothe": 2}
 
-comandos= {"assignTo": 1, "goto": 2, "move":1 , "turn":1, "face": 0, "put":2, "pick":2 ,"moveindir": 2 , "jumpindir": 2 ,"movetothe": 2 , "jumptothe": 2 ,"nop": 0}
+comandos= {"assignto": 2, "goto": 2, "move":1 , "turn":1, "face": 0, "put":2, "pick":2 ,"moveindir": 2 , "jumpindir": 2 ,"movetothe": 2 , "jumptothe": 2 ,"nop": 0}
 variables ={"north", "south", "east", "west", "front", "right", "left", "back", "chips", "balloons" }
 declared_param = set()
 
@@ -22,15 +22,16 @@ vars_ = Group(var_name + ZeroOrMore(Literal(",") + var_name))
 
 # Instrucciones
 
-instruction_params = ((oneOf(variables)|Word(nums)|oneOf(declared_param)) + ZeroOrMore(Literal(",") + (oneOf(variables)|Word(nums)|oneOf(declared_param)))) | Empty()
-instruction_call = ((oneOf(comandos))  + Literal(":") + instruction_params)
-instructions_call= (instruction_call + ZeroOrMore(Literal(";") + instruction_call))
 
-local_param=(Word(alphanums) + ZeroOrMore(Literal(",") + Word(alphanums))) | Empty()
+instruction_params = ((var_name) + ZeroOrMore(Literal(",") + (var_name))) | Empty()
+instruction_call = (var_name  + Literal(":") + instruction_params)
+instructions_call= Group(instruction_call + ZeroOrMore(Literal(";") + instruction_call))
+
+local_param=(var_name + ZeroOrMore(Literal(",") + var_name)) | Empty()
 # Condiciones
 
-condicional_call = (oneOf(condicionales) + Literal(":") + instruction_params)|(Literal("not") + Literal(":") + oneOf(condicionales) + Literal(":") + instruction_params)
-condicionals_call= Group(condicional_call + ZeroOrMore(Literal(";") + condicional_call))
+condicional_call = ((oneOf(condicionales) + Literal(":") + instruction_params)|(Literal("not") + Literal(":") + oneOf(condicionales) + Literal(":") + instruction_params))
+
 
 
 
@@ -39,20 +40,20 @@ if_statement = Forward()
 repeat_statement= Forward()
 
 # Repeat
-repeat_statement <<= Literal("repeat") + Literal(":") + Word(nums) + Literal("[") + (while_statement|if_statement|repeat_statement|instructions_call )+ ZeroOrMore(Literal(";") + (while_statement|if_statement|repeat_statement|instructions_call )) + Literal("]") 
+repeat_statement <<= Literal("repeat") + Literal(":") + Word(nums) + Literal("[") + (repeat_statement|while_statement|if_statement|instructions_call )+ ZeroOrMore(Literal(";") + (repeat_statement|while_statement|if_statement|instructions_call)) + Literal("]") 
 
 # Condicional
 
-if_statement <<= Literal("if") + Literal(":") + condicionals_call + Literal("then") + Literal(":") + Literal("[") + (while_statement|if_statement|repeat_statement|instructions_call )+ ZeroOrMore(Literal(";") + (while_statement|if_statement|repeat_statement|instructions_call )) + Literal("]")  + Literal("else") +Literal(":") + Literal("[") + (while_statement|if_statement|repeat_statement|instructions_call )+ ZeroOrMore(Literal(";") + (while_statement|if_statement|repeat_statement|instructions_call )) + Literal("]") 
+if_statement <<= Group(Literal("if") + Literal(":") + condicional_call + Literal("then") + Literal(":") + Literal("[") + (repeat_statement|while_statement|if_statement|instructions_call )+ ZeroOrMore(Literal(";") + (repeat_statement|while_statement|if_statement|instructions_call )) + Literal("]")  + Literal("else") +Literal(":") + Literal("[") + (repeat_statement|while_statement|if_statement|instructions_call)+ ZeroOrMore(Literal(";") + (repeat_statement|while_statement|if_statement|instructions_call)) + Literal("]") )
 
 # Bucle
 
-while_statement <<= Literal("while") + Literal(":") + condicionals_call + Literal("do") + Literal(":") + Literal("[") + (while_statement|if_statement|repeat_statement|instructions_call )+ ZeroOrMore(Literal(";") + (while_statement|if_statement|repeat_statement|instructions_call )) + Literal("]") 
+while_statement <<= Literal("while") + Literal(":") + condicional_call + Literal("do") + Literal(":") + Literal("[") + (repeat_statement|while_statement|if_statement|instructions_call)+ ZeroOrMore(Literal(";") + (repeat_statement|while_statement|if_statement|instructions_call)) + Literal("]") 
 
 # Procedimiento
-procedure_declaration = Word(alphanums)  + Literal("[") + Literal("|") + local_param + Literal("|") 
-auxiliar_symbol =Literal("]") 
-complete_procedure = procedure_declaration+(while_statement|if_statement|repeat_statement|instructions_call )+ ZeroOrMore(Literal(";") + (while_statement|if_statement|repeat_statement|instructions_call )) + auxiliar_symbol
+procedure_declaration = Group(var_name  + Literal("[") + Literal("|") + local_param + Literal("|") )
+
+complete_procedure = procedure_declaration+(repeat_statement|while_statement|if_statement|instructions_call)+ ZeroOrMore(Literal(";") + (repeat_statement|while_statement|if_statement|instructions_call)) + Literal("]")
 
 
 # Declaración de procedimientos
@@ -78,13 +79,13 @@ var_declaration.setParseAction(guardar_variables)
 
 #Guardar procedimiento
 def guardar_procedimiento(token):
-
-    comandos.add(token[0])
+    
     aux_token=token[3:]
     for value in aux_token:
         if value!= "|" and value!=",":
             declared_param.add(value)
 
+    comandos[token[0]]=len(declared_param)
 
 procedure_declaration.setParseAction(guardar_procedimiento)
 
@@ -93,40 +94,61 @@ procedure_declaration.setParseAction(guardar_procedimiento)
 
 def reiniciar_parametros(token):
     declared_param=set()
-auxiliar_symbol.setParseAction(reiniciar_parametros)
+complete_procedure.setParseAction(reiniciar_parametros)
+
+
 
 
 #Comprobar longitud parametros
 
 def comprobar_parametros(token):
+
+
+    if token[0] not in comandos:
+        raise ValueError("x")
+
     auxiliar_params=[elemento for elemento in token[2:] if elemento!=","]
-    if len(auxiliar_params) != comandos[token[0]]:
-        raise ValueError
     
-    print(token)
+    if len(auxiliar_params) != comandos[token[0]]:
+        raise ValueError("b")
+    for cada_elemento in auxiliar_params:
+
+        if (cada_elemento not in variables) and (cada_elemento not in declared_param):
+            try:
+                int(cada_elemento)
+            except:
+                raise ValueError("a")
+    
+    
+
 
 #Comprobar longitud parametros en condicionales
 
 def comprobar_parametros_condicionales(token):
     
-    
-    print(token)
     if token[0]!="not":
         auxiliar_params=[elemento for elemento in token[2:] if elemento!=","]
+        
         if len(auxiliar_params) != condicionales[token[0]]:
-            raise ValueError
+            raise ValueError("e")
     else:
         auxiliar_params=[elemento for elemento in token[2:] if elemento!="," and elemento!=":" ]
         if len(auxiliar_params)-1 != condicionales[auxiliar_params[0]]:
-            raise ValueError
-        
-        print(auxiliar_params)
+            raise ValueError("d")
     
-   
+    
+def digitos(token):
+    if type(token[0][0])==int or type(token[0][0])==float:
+        raise ValueError("c")
+
+    elements={"!","@","#","$","%","^","&","*"}
+    for element in token[0]:
+        if element in elements:
+            raise ValueError("z")
+
     
 
-
-
+var_name.setParseAction(digitos)
 
 instruction_call.setParseAction(comprobar_parametros)
 condicional_call.setParseAction(comprobar_parametros_condicionales)
@@ -137,54 +159,70 @@ grammar = Literal("robot_r")+ Optional(var_declaration) + Optional(procs) + inst
 
 
 """
+x="procesohard [|a, b, c, d, e, f, g| if: canMoveInDir : a, north then: [MoveInDir : a , north; procesohard: a, b, c,d,e,f,g] else:  [if: canMoveInDir : b, west then:[ repeat: 13567897 [ while canMoveInDir : 1, 1 do: [nop]; procesohard: 1, 1, 1,1,1,1,1]]else: [nop]] ]".lower()
+y=11
 try:
-    result = grammar.parseString(text)
-    print("La cadena es válida según la gramática")
-except Exception as e:
-    print("La cadena no es válida según la gramática")
-    print(e)
-    print(text[57])
-"""
-
-
-"""
-try:
-    result = var_declaration.parseString("            vars            nom , x , y , one,two ;")
-    print("La cadena es válida según la gramática")
-except Exception as e:
-    print("La cadena no es válida según la gramática")
-    print(e)
-"""
-
-
-try:
-    result = condicional_call.parseString("not : canmovetothe : 1 , north , 3 do: [ moveInDir : 1 , north ]")
-    print("La cadena es válida según la gramática")
-except Exception as e:
-    print("La cadena no es válida según la gramática")
-    print(e)
-    print("not : canmovetothe : 1 , north do: [ moveInDir : 1 , north ]"[0])
-
-
-"""
-try:
+    result = complete_procedure.parseString(x)
     
-    result = while_statement.parseString("while : canmovetothe : 1 , north do: [ while : canmovetothe : 1 , north do: [ while : canmovetothe : 1 , north do: [ moveInDir : 1 , north ; moveInDir : 1 , north ] ] ]")
     print("La cadena es válida según la gramática")
+    
 except Exception as e:
     print("La cadena no es válida según la gramática")
     print(e)
-    print("while : canMovetoThe : 1 , north do: [ while : canMovetoThe : 1 , north do: [ moveInDir : 1 , north ] ]"[58])
-    print(len("while : canMovetoThe : 1 , north do: [ while : canMovetoThe : 1 , north do: [ moveInDir : 1 , north ] ]"))
 
+    
+    print(x[y+2])
+    print(x[y+1])
+    print(x[y])
+    print(x[y-1])
+    print(x[y-2])
+    print(x[y-3])
+    print(x[y-4])
 """
 
+
 """
+x="if: canMoveInDir : 1, north then: [MoveInDir : 1 , south; put: 1, 1] else:  [ if: canMoveInDir : 1, west then:[ repeat: 13567897 [while canMoveInDir : 1, 2 do: [nop:]; proceso_hard: 1, 2, 3,4,5,6,7]]] else: [nop:]]".lower()
+y=56
+
 try:
-    result = if_statement.parseString("if : canMoveInDir : 1 , west then: [ MoveInDir : 1 ,west ] else : nop : ]")
+    result = if_statement.parseString(x)
+    
     print("La cadena es válida según la gramática")
+    
 except Exception as e:
     print("La cadena no es válida según la gramática")
     print(e)
-    print("if : canMoveInDir : 1 , west then : [ MoveInDir : 1 , west ] else : nop : ]"[59])
+
+    print(x[y+2])
+    print(x[y+1])
+    print(x[y])
+    print(x[y-1])
+    print(x[y-2])
+    print(x[y-3])
+    print(x[y-4])
 """
+
+"""
+x="repeat: 13567897 [ while : canmoveindir : 1, 2 do: [nop:]]; proceso_hard: 1, 2, 3,4,5,6,7]".lower()
+y=57
+
+try:
+    result = repeat_statement.parseString(x)
+    
+    print("La cadena es válida según la gramática")
+    
+except Exception as e:
+    print("La cadena no es válida según la gramática")
+    print(e)
+
+    print(x[y+2])
+    print(x[y+1])
+    print(x[y])
+    print(x[y-1])
+    print(x[y-2])
+    print(x[y-3])
+    print(x[y-4])
+
+"""
+
